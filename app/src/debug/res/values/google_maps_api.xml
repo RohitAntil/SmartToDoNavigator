@@ -1,0 +1,19 @@
+<resources>
+    <!--
+    TODO: Before you run your application, you need a Google Maps API key.
+
+    To get one, follow this link, follow the directions and press "Create" at the end:
+
+    https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=95:A3:C7:A4:BA:19:88:14:00:8C:AF:E5:CD:4C:AD:C7:7C:29:8A:E6%3Bcom.example.rohit02kumar.smarttodonavigator
+
+    You can also add your credentials to an existing key, using this line:
+    95:A3:C7:A4:BA:19:88:14:00:8C:AF:E5:CD:4C:AD:C7:7C:29:8A:E6;com.example.rohit02kumar.smarttodonavigator
+
+    Alternatively, follow the directions here:
+    https://developers.google.com/maps/documentation/android/start#get-key
+
+    Once you have your key (it starts with "AIza"), replace the "google_maps_key"
+    string in this file.
+    -->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCD_UWVi5Y4ixf59kPNnMon8d19QSZ6y-k</string>
+</resources>
