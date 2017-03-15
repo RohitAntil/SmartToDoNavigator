@@ -1,4 +1,4 @@
-package com.example.rohit02kumar.smarttodonavigator;
+package com.example.rohit02kumar.smarttodonavigator.SearchPackage;
 
 import android.content.Context;
 import android.provider.ContactsContract;
@@ -11,6 +11,8 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.rohit02kumar.smarttodonavigator.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,7 @@ import java.util.List;
  */
 public class ListAdapter extends BaseAdapter implements Filterable {
 
-    List mData;
+    List <String>mData;
     List mStringFilterList;
     ValueFilter valueFilter;
 
@@ -47,19 +49,12 @@ public class ListAdapter extends BaseAdapter implements Filterable {
     @Override
     public View getView(int position, View convertView, final ViewGroup parent) {
 
-//        if (inflater == null) {
-//            inflater = (LayoutInflater) parent.getContext()
-//                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        }
-//        RowItemBinding rowItemBinding = DataBindingUtil.inflate(inflater, R.layout.row_item, parent, false);
-//        rowItemBinding.stringName.setText(mData.get(position));
-//        return rowItemBinding.getRoot();
 
         LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.row_item, null, true);
 
         TextView txtTitle = (TextView)rowView.findViewById(R.id.suggestion);
-        txtTitle.setText(mData.get(position).toString());
+        txtTitle.setText(mData.get(position));
         return rowView;
 
     }
