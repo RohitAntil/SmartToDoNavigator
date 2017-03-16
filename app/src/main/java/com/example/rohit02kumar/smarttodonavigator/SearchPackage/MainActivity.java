@@ -32,13 +32,13 @@ FloatingActionButton fab;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//              Intent intent =new Intent(getApplicationContext(), MapsActivity.class);
-//                startActivity(intent);
+             Intent intent =new Intent(getApplicationContext(), MapsActivity.class);
+              startActivity(intent);
          //       https://medium.com/exploring-android/exploring-play-services-place-picker-autocomplete-150809f739fe#.2tsgeu68h
-                Context context=getApplicationContext();
-                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-                Intent intent = builder.build();
-                startActivityForResult(intent, PLACE_PICKER_REQUEST);
+//                Context context=getApplicationContext();
+//                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+//                Intent intent = builder.build();
+//                startActivityForResult(intent, PLACE_PICKER_REQUEST);
             }
         });
           search.setOnSuggestionListener(new OnSuggestionListener(){

@@ -51,17 +51,20 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener ,OnTaskCompleted{
 
     private GoogleMap mMap;
     ArrayList<LatLng> MarkerPoints;
+    ArrayList<Marker> Markers;
     double latitude;
     double longitude;
-    private int PROXIMITY_RADIUS = 10000;
+    private int PROXIMITY_RADIUS = 1000;
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
+    LatLng start;
+    LatLng end;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +76,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         MarkerPoints = new ArrayList<>();
-
+        Markers=new ArrayList<Marker>();
+        start=new LatLng(12.972442, 77.580643);
+        end=new LatLng(12.2979100,76.6392500);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -99,7 +104,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 buildGoogleApiClient();
-                mMap.setMyLocationEnabled(true);
+               mMap.setMyLocationEnabled(true);
             }
         }
         else {
@@ -107,6 +112,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
         }
 
+
+        addPolyline(start,end); //setMarkers and Polyline
+        //move map camera
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+
+/*
         // Setting onclick event listener for the map
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
@@ -128,10 +140,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // Setting the position of the marker
                 options.position(point);
 
-                /**
-                 * For the start location, the color of marker is GREEN and
-                 * for the end location, the color of marker is RED.
-                 */
+                ///**
+                 //* For the start location, the color of marker is GREEN and
+                 //* for the end location, the color of marker is RED.
+
                 if (MarkerPoints.size() == 1) {
                     options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                 } else if (MarkerPoints.size() == 2) {
@@ -148,7 +160,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     LatLng dest = MarkerPoints.get(1);
 
                     // Getting URL to the Google Directions API
-                    String url = getUrl(origin, dest);
+                      String url = getUrl(origin, dest);
                     Log.d("onMapClick", url.toString());
                     FetchUrl FetchUrl = new FetchUrl();
 
@@ -161,21 +173,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-
+*/
+        final MapsActivity myActivity=this;
         Button btnRestaurant = (Button) findViewById(R.id.btnRestaurant);
         btnRestaurant.setOnClickListener(new View.OnClickListener() {
             String Restaurant = "restaurant";
             @Override
             public void onClick(View v) {
                 Log.d("onClick", "Button is Clicked");
-                mMap.clear();
-                String url = getnearByUrl(latitude, longitude, Restaurant);
+              //  mMap.clear();
+                String url = getnearByUrl(start.latitude, start.longitude, Restaurant);
                 Object[] DataTransfer = new Object[2];
                 DataTransfer[0] = mMap;
                 DataTransfer[1] = url;
                 Log.d("onClick", url);
-                GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
+
+               // addPolyline(start,end);
+                removeMarkers();
+                GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(myActivity);
                 getNearbyPlacesData.execute(DataTransfer);
+                //move map camera
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
                 Toast.makeText(MapsActivity.this,"Nearby Restaurants", Toast.LENGTH_LONG).show();
             }
         });
@@ -186,14 +205,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 Log.d("onClick", "Button is Clicked");
-                mMap.clear();
-                String url = getnearByUrl(latitude, longitude, Hospital);
+               // mMap.clear();
+
+                String url = getnearByUrl(start.latitude, start.longitude, Hospital);
                 Object[] DataTransfer = new Object[2];
                 DataTransfer[0] = mMap;
                 DataTransfer[1] = url;
                 Log.d("onClick", url);
-                GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
+
+               // addPolyline(start,end);
+                removeMarkers();
+                GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(myActivity);
                 getNearbyPlacesData.execute(DataTransfer);
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
                 Toast.makeText(MapsActivity.this,"Nearby Hospitals", Toast.LENGTH_LONG).show();
             }
         });
@@ -204,20 +230,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 Log.d("onClick", "Button is Clicked");
-                mMap.clear();
+                //  mMap.clear();
                 if (mCurrLocationMarker != null) {
                     mCurrLocationMarker.remove();
                 }
-                String url = getnearByUrl(latitude, longitude, School);
+                String url = getnearByUrl(start.latitude, start.longitude, School);
                 Object[] DataTransfer = new Object[2];
                 DataTransfer[0] = mMap;
                 DataTransfer[1] = url;
                 Log.d("onClick", url);
-                GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
+              //  addPolyline(start,end);
+                removeMarkers();
+                GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(myActivity);
                 getNearbyPlacesData.execute(DataTransfer);
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
                 Toast.makeText(MapsActivity.this,"Nearby Schools", Toast.LENGTH_LONG).show();
             }
         });
+    }
+      @Override
+      public void onTaskCompleted(ArrayList<Marker> list)
+     {
+       Markers=list;
+     }
+
+    public void removeMarkers()
+    {
+        if(Markers!=null&&Markers.size()!=0)
+        { for(Marker m:Markers) {
+            if (m != null) {
+                m.remove();
+            }
+        }
+        }
+    }
+    private void addPolyline(LatLng start,LatLng end)
+    {
+        MarkerOptions optionsStart = new MarkerOptions();
+        optionsStart.position(start);
+        optionsStart.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        MarkerOptions optionsEnd = new MarkerOptions();
+        optionsEnd.position(end);
+        mMap.addMarker(optionsStart);
+        mMap.addMarker(optionsEnd);
+        optionsEnd.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        // Start downloading json data from Google Directions API
+        FetchUrl furl=new FetchUrl();
+        String url=getUrl(start,end);// Getting URL to the Google Directions API
+        furl.execute(url);
     }
     private String getnearByUrl(double latitude, double longitude, String nearbyPlace) {
 
@@ -328,16 +389,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * A class to parse the Google Places in JSON format
+     * A class to parse the Google Places in JSON format and drawing line
      */
     private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
         // Parsing the data in non-ui thread
+        List<List<HashMap<String, String>>> routes = null;
         @Override
         protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
 
             JSONObject jObject;
-            List<List<HashMap<String, String>>> routes = null;
+
 
             try {
                 jObject = new JSONObject(jsonData[0]);
@@ -384,7 +446,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 // Adding all the points in the route to LineOptions
                 lineOptions.addAll(points);
-                lineOptions.width(10);
+                lineOptions.width(15);
                 lineOptions.color(Color.BLUE);
 
                 Log.d("onPostExecute","onPostExecute lineoptions decoded");
@@ -433,28 +495,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
 
-        mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();
-        //Place current location marker
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);
-
-        //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-
-        //stop location updates
-        if (mGoogleApiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        }
+//        mLastLocation = location;
+//        if (mCurrLocationMarker != null) {
+//            mCurrLocationMarker.remove();
+//        }
+//        latitude = location.getLatitude();
+//        longitude = location.getLongitude();
+//        //Place current location marker
+//        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+//        MarkerOptions markerOptions = new MarkerOptions();
+//        markerOptions.position(latLng);
+//        markerOptions.title("Current Position");
+//        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+//        mCurrLocationMarker = mMap.addMarker(markerOptions);
+//
+//        //move map camera
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+//
+//        //stop location updates
+//        if (mGoogleApiClient != null) {
+//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+//        }
 
     }
 

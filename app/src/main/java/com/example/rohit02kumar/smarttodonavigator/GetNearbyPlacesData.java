@@ -3,6 +3,7 @@ package com.example.rohit02kumar.smarttodonavigator;
 /**
  * Created by rohit02.kumar on 3/9/2017.
  */
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -10,10 +11,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
@@ -21,7 +24,14 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
     String googlePlacesData;
     GoogleMap mMap;
     String url;
+   OnTaskCompleted task;
+    ArrayList<Marker> mMarkerPoints ;
+    GetNearbyPlacesData(OnTaskCompleted task)
+    {
+        this.task=task;
+        mMarkerPoints=new ArrayList<Marker>();
 
+    }
     @Override
     protected String doInBackground(Object... params) {
         try {
@@ -44,6 +54,7 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
         NearbyDataParser dataParser = new NearbyDataParser();
         nearbyPlacesList =  dataParser.parse(result);
         ShowNearbyPlaces(nearbyPlacesList);
+        task.onTaskCompleted(mMarkerPoints);
         Log.d("GooglePlacesReadTask", "onPostExecute Exit");
     }
 
@@ -57,13 +68,14 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
             String placeName = googlePlace.get("place_name");
             String vicinity = googlePlace.get("vicinity");
             LatLng latLng = new LatLng(lat, lng);
+
             markerOptions.position(latLng);
             markerOptions.title(placeName + " : " + vicinity);
-            mMap.addMarker(markerOptions);
+            mMarkerPoints.add( mMap.addMarker(markerOptions));
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
             //move map camera
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
         }
     }
 }
