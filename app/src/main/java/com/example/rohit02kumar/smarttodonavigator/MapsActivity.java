@@ -58,7 +58,7 @@ import java.util.TimerTask;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener ,OnTaskCompleted{
+        LocationListener ,OnTaskCompleted {
 
     private GoogleMap mMap;
     ArrayList<LatLng> MarkerPoints;
@@ -72,6 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng start;
     LatLng end;
     ArrayList<LatLng> points; // to get all the LatLong Points in the direction
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,10 +83,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         MarkerPoints = new ArrayList<>();
-        Markers=new ArrayList<Marker>();
+        Markers = new ArrayList<Marker>();
 
-      //  start=new LatLng(12.972442, 77.580643);
-        end=new LatLng(12.2979100,76.6392500);
+        //  start=new LatLng(12.972442, 77.580643);
+        end = new LatLng(12.2979100, 76.6392500);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -117,7 +118,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
-
 
 
         final MapsActivity myActivity = this;
@@ -180,7 +180,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 Log.d("onClick", "Button is Clicked");
-                 // mMap.clear();
+                // mMap.clear();
                 if (mCurrLocationMarker != null) {
                     mCurrLocationMarker.remove();
                 }
@@ -189,15 +189,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 DataTransfer[0] = mMap;
                 DataTransfer[1] = url;
                 Log.d("onClick", url);
-               // addMarkers(start,end);
+                // addMarkers(start,end);
                 removeMarkers();
                 GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(myActivity);
                 getNearbyPlacesData.execute(DataTransfer);
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-                Toast.makeText(MapsActivity.this,"Nearby Schools", Toast.LENGTH_LONG).show();
+                Toast.makeText(MapsActivity.this, "Nearby Schools", Toast.LENGTH_LONG).show();
 
-  //              startNavigation();
+                //              startNavigation();
 
 
             }
@@ -226,10 +226,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
-       Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
         if (mLastLocation != null) {
-            start = new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude());
+            start = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
             addMarkers(end); //setMarker
             String url = getUrl(start, end);// Getting URL to the Google Directions API
@@ -258,7 +258,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         longitude = location.getLongitude();
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        start=latLng;
+        start = latLng;
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Current Position");
@@ -273,11 +273,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
-
+      //  show_nearby_schools();
     }
 
-    private void addMarkers(LatLng end)
-    {
+    private void addMarkers(LatLng end) {
 
         MarkerOptions optionsEnd = new MarkerOptions();
         optionsEnd.position(end);
@@ -286,13 +285,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
+
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    public boolean checkLocationPermission(){
+
+    public boolean checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -357,13 +358,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    void startNavigation(){
+    void startNavigation() {
         MarkerOptions optionsStart = new MarkerOptions();
         optionsStart.position(points.get(0));
         optionsStart.icon(BitmapDescriptorFactory.fromResource(R.drawable.nav_icon));
-        Marker m= mMap.addMarker(optionsStart);
-        for(final LatLng point: points)
-        {   m.remove();
+        Marker m = mMap.addMarker(optionsStart);
+        for (final LatLng point : points) {
+            m.remove();
 
             optionsStart = new MarkerOptions();
             optionsStart.position(point);
@@ -372,20 +373,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     }
+
     @Override
-    public void onTaskCompleted(ArrayList<Marker> list)
-    {
-        Markers=list;
+    public void onTaskCompleted(ArrayList<Marker> list) {
+        Markers = list;
     }
 
-    public void removeMarkers()
-    {
-        if(Markers!=null&&Markers.size()!=0)
-        { for(Marker m:Markers) {
-            if (m != null) {
-                m.remove();
+    public void removeMarkers() {
+        if (Markers != null && Markers.size() != 0) {
+            for (Marker m : Markers) {
+                if (m != null) {
+                    m.remove();
+                }
             }
-        }
         }
     }
 
@@ -401,6 +401,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d("getUrl", googlePlacesUrl.toString());
         return (googlePlacesUrl.toString());
     }
+
     private String getUrl(LatLng origin, LatLng dest) {
 
         // Origin of route
@@ -468,7 +469,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-
     // Fetches data from url passed
     private class FetchUrl extends AsyncTask<String, Void, String> {
 
@@ -507,23 +507,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Parsing the data in non-ui thread
         List<List<HashMap<String, String>>> routes = null;
+
         @Override
         protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
 
             JSONObject jObject;
             try {
                 jObject = new JSONObject(jsonData[0]);
-                Log.d("ParserTask",jsonData[0].toString());
+                Log.d("ParserTask", jsonData[0].toString());
                 DataParser parser = new DataParser();
                 Log.d("ParserTask", parser.toString());
 
                 // Starts parsing data
                 routes = parser.parse(jObject);
-                Log.d("ParserTask","Executing routes");
-                Log.d("ParserTask",routes.toString());
+                Log.d("ParserTask", "Executing routes");
+                Log.d("ParserTask", routes.toString());
 
             } catch (Exception e) {
-                Log.d("ParserTask",e.toString());
+                Log.d("ParserTask", e.toString());
                 e.printStackTrace();
             }
             return routes;
@@ -560,20 +561,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 lineOptions.color(Color.BLUE);
 
 
-                Log.d("onPostExecute","onPostExecute lineoptions decoded");
+                Log.d("onPostExecute", "onPostExecute lineoptions decoded");
 
             }
 
             // Drawing polyline in the Google Map for the i-th route
-            if(lineOptions != null) {
+            if (lineOptions != null) {
 
                 mMap.addPolyline(lineOptions);
-            }
-            else {
-                Log.d("onPostExecute","without Polylines drawn");
+            } else {
+                Log.d("onPostExecute", "without Polylines drawn");
             }
 
         }
     }
 
+    void show_nearby_schools() {
+
+        String School = "school";
+
+        if (mCurrLocationMarker != null) {
+            mCurrLocationMarker.remove();
+        }
+
+        String url = getnearByUrl(start.latitude, start.longitude, School);
+        Object[] DataTransfer = new Object[2];
+        DataTransfer[0] = mMap;
+        DataTransfer[1] = url;
+        Log.d("onClick", url);
+        // addMarkers(start,end);
+        removeMarkers();
+        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(this);
+        getNearbyPlacesData.execute(DataTransfer);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+        Toast.makeText(MapsActivity.this,"Nearby Schools", Toast.LENGTH_LONG).show();
+
+    }
 }
