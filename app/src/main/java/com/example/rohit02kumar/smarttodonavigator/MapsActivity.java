@@ -273,6 +273,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
+        Toast.makeText(this,"Location changed",Toast.LENGTH_SHORT);
       //  show_nearby_schools();
     }
 
@@ -282,8 +283,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         optionsEnd.position(end);
         optionsEnd.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         mMap.addMarker(optionsEnd);
-
-
     }
 
     @Override
