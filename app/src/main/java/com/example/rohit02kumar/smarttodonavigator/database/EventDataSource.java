@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -15,13 +16,15 @@ public class EventDataSource {
     private static final String DEFAULT_SORT_ORDER = "DESC";
     private SQLiteDatabase mDatabase;
     private EventsDatabaseHelper mDbHelper;
-    private String[] mAllColumns = { EventTable.COLUMN_ID,
+    private Context mContext;
+    private String[] mAllColumns = {
             EventTable.COLUMN_EVENTNAME, EventTable.COLUMN_EVENTTYPE,EventTable.COLUMN_FROM_DATE,
-            EventTable.COLUMN_TO_DATE };
-    private String[] mIdColumn = { EventTable.COLUMN_ID };
+            EventTable.COLUMN_TO_DATE,EventTable.COLUMN_TO_COMPLETE };
+  //  private String[] mIdColumn = { EventTable.COLUMN_ID };
 
     public EventDataSource(Context context) {
         mDbHelper = new EventsDatabaseHelper(context);
+        mContext=context;
     }
 
     public void open() throws SQLException {
@@ -32,49 +35,44 @@ public class EventDataSource {
         mDbHelper.close();
     }
 
-    public long createEvent(Integer id, String eventname, String type, long from,long to
-                                 ) {
+    public long createEvent(String eventname, String type, String from,String to,
+                                 int isComplete) {
         ContentValues values = new ContentValues();
-        values.put(EventTable.COLUMN_ID, id);
         values.put(EventTable.COLUMN_EVENTNAME, eventname);
         values.put(EventTable.COLUMN_EVENTTYPE, type);
         values.put(EventTable.COLUMN_FROM_DATE, from);
         values.put(EventTable.COLUMN_TO_DATE,to );
+        values.put(EventTable.COLUMN_TO_COMPLETE,isComplete);
         open();
         long insertId = mDatabase.insert(EventTable.TABLE_EVENTS, null, values);
+        if(insertId!=-1)
+        {
+            Toast.makeText(mContext,"Event added successfully",Toast.LENGTH_SHORT);
+        }
         close();
         return insertId;
     }
 
-//    public long updateEvent(Integer id, String filename, long modification_date,
-//                                  String description) {
-//        ContentValues values = new ContentValues();
-//        values.put(Table.COLUMN_ID, id);
-//        values.put(NotesTable.COLUMN_FILENAME, filename);
-//        values.put(NotesTable.COLUMN_MODIFICATION_DATE, modification_date);
-//        values.put(NotesTable.COLUMN_DESCRIPTION, description);
-//        open();
-//        long insertId = mDatabase.update(NotesTable.TABLE_NOTES, values, NotesTable.COLUMN_ID
-//                + " = " + id, null);
-//        Cursor cursor = mDatabase.query(NotesTable.TABLE_NOTES,
-//                mAllColumns, NotesTable.COLUMN_ID + " = " + insertId, null,
-//                null, null, null);
-//        cursor.moveToFirst();
-//        cursor.close();
-//        close();
-//        return insertId;
-//    }
-
-    public int deleteEvent(int id) {
+    public long updateEvent(String name,int isComplete) {
+        ContentValues values = new ContentValues();
+        values.put(EventTable.COLUMN_TO_COMPLETE, isComplete);
         open();
-        int deleteStatus = mDatabase.delete(EventTable.TABLE_EVENTS, EventTable.COLUMN_ID
-                + " = " + id, null);
+        long insertId = mDatabase.update(EventTable.TABLE_EVENTS, values, EventTable.COLUMN_EVENTNAME
+                + " = " + name, null);
+
+        return insertId;
+    }
+
+    public int deleteEvent(String name) {
+        open();
+        int deleteStatus = mDatabase.delete(EventTable.TABLE_EVENTS, EventTable.COLUMN_EVENTNAME
+                + " = " + name, null);
         close();
         return deleteStatus;
     }
 
-    public ArrayList<Event> getAllNote_Objects() {
-        ArrayList<Event> notes = new ArrayList<Event>();
+    public ArrayList<Event> getAllEvents() {
+        ArrayList<Event> events = new ArrayList<Event>();
         open();
         Cursor cursor = mDatabase.query(EventTable.TABLE_EVENTS,
                 mAllColumns, null, null, null, null,
@@ -82,42 +80,23 @@ public class EventDataSource {
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            Event note = cursorToNote_Object(cursor);
-            notes.add(note);
-
+            Event event = cursorToEvent_Object(cursor);
+            events.add(event);
             cursor.moveToNext();
         }
         // make sure to close the cursor
         cursor.close();
         close();
-        return notes;
+        return events;
     }
 
-    public ArrayList<Integer> getAllIds() {
-        ArrayList<Integer> notes = new ArrayList<Integer>();
-        open();
-        Cursor cursor = mDatabase.query(EventTable.TABLE_EVENTS,
-                mIdColumn, null, null, null, null, null);
-
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-
-            notes.add(cursor.getInt(0));
-            cursor.moveToNext();
-        }
-        // make sure to close the cursor
-        cursor.close();
-        close();
-        return notes;
-    }
-
-    private Event cursorToNote_Object(Cursor cursor) {
-        Event note = new Event();
-        note.setmId(cursor.getInt(0));
-        note.setmEventName(cursor.getString(1));
-        note.setmEvenType(cursor.getString(2));
-        note.setmFromDate(cursor.getLong(3));
-        note.setmToDate(cursor.getLong(4));
-        return note;
+    private Event cursorToEvent_Object(Cursor cursor) {
+        Event event = new Event();
+        event.setmEventName(cursor.getString(0));
+        event.setmEvenType(cursor.getString(1));
+        event.setmFromDate(cursor.getString(2));
+        event.setmToDate(cursor.getString(3));
+        event.setIsComplete(cursor.getInt(4));
+        return event;
     }
 }

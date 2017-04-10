@@ -9,21 +9,23 @@ import android.util.Log;
 public class EventTable {
 
     public static final String TABLE_EVENTS = "events";
-    public static final String COLUMN_ID = "_id";
+  //  public static final String COLUMN_ID = "_id";
     public static final String COLUMN_EVENTNAME = "eventname";
     public static final String COLUMN_EVENTTYPE="eventype";
     public static final String COLUMN_FROM_DATE = "fromdate";
     public static final String COLUMN_TO_DATE = "todate";
+    public static final String COLUMN_TO_COMPLETE="iscomplete";
 
     // Database creation SQL statement
     private static final String DATABASE_CREATE = "create table "
             + TABLE_EVENTS
             + "("
-            + COLUMN_ID + " integer primary key autoincrement, "
-            + COLUMN_EVENTNAME + " text not null, "
+        //    + COLUMN_ID + " integer primary key autoincrement, "
+            + COLUMN_EVENTNAME + " text primary key not null, "
             + COLUMN_EVENTTYPE + " text not null, "
-            + COLUMN_FROM_DATE + " long not null,"
-            + COLUMN_TO_DATE + " long not null"
+            + COLUMN_FROM_DATE + " text not null,"
+            + COLUMN_TO_DATE + " text not null,"
+            + COLUMN_TO_COMPLETE + " integer not null"
             + ");";
 
     /* will be used to create database and notes table */
