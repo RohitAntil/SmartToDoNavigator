@@ -49,6 +49,7 @@ public class EventDataSource {
         {
             Toast.makeText(mContext,"Event added successfully",Toast.LENGTH_SHORT);
         }
+        Toast.makeText(mContext,"Event added successfully",Toast.LENGTH_SHORT);
         close();
         return insertId;
     }

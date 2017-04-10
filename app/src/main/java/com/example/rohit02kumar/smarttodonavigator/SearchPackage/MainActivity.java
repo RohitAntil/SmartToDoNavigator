@@ -97,27 +97,29 @@ public class MainActivity extends AppCompatActivity {
             }
 
         };
+        dialog=new DatePickerDialog(MainActivity.this, date_picker_from, myCalendar
+                .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                myCalendar.get(Calendar.DAY_OF_MONTH));
+        dialog.getDatePicker().setMinDate(System.currentTimeMillis()-1000);
         fromDate.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-             dialog=new DatePickerDialog(MainActivity.this, date_picker_from, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH));
-                dialog.getDatePicker().setMinDate(System.currentTimeMillis()-1000);
+
                 dialog.show();
             }
         });
+        dialog1= new DatePickerDialog(MainActivity.this, date_picker_to, myCalendar
+                .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                myCalendar.get(Calendar.DAY_OF_MONTH));
+        dialog1.getDatePicker().setMinDate(System.currentTimeMillis()-1000);
         toDate.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                dialog1= new DatePickerDialog(MainActivity.this, date_picker_to, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH));
-                dialog1.getDatePicker().setMinDate(System.currentTimeMillis()-1000);
+
                 dialog1.show();
             }
         });
