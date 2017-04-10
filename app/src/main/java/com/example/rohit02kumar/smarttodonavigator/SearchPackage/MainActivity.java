@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnSuggestionListener;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -24,6 +25,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.rohit02kumar.smarttodonavigator.DialogAdapter;
 import com.example.rohit02kumar.smarttodonavigator.MapsActivity;
 import com.example.rohit02kumar.smarttodonavigator.R;
 import com.example.rohit02kumar.smarttodonavigator.database.Event;
@@ -127,21 +129,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Dialog dialog = new Dialog(MainActivity.this);
+                dialog.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
                 dialog.setContentView(R.layout.list);
+                dialog.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
                 ListView lv = (ListView) dialog.findViewById(R.id.lv);
                 dialog.setCancelable(true);
-                dialog.setTitle("ListView");
                 dialog.show();
+                eventsList= new EventDataSource(MainActivity.this).getAllEvents();
                 lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        eventsList= new EventDataSource(MainActivity.this).getAllEvents();
+
                        Event event=eventsList.get(position);
 
                         Snackbar.make(view, event.getmEventName()+"\n"+event.getmEvenType()+" Date : "+event.getmFromDate(), Snackbar.LENGTH_LONG)
                                 .setAction("No action", null).show();
                     }
                 });
+                lv.setAdapter(new DialogAdapter(MainActivity.this,eventsList));
 //                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
 //                startActivity(intent);
             }
@@ -170,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
                     EventDataSource dataSource=new EventDataSource(MainActivity.this);
                     dataSource.createEvent(name,type,from,to,0);
+                    Toast.makeText(MainActivity.this,"Event added successfully",Toast.LENGTH_SHORT);
                     eventName.setText("");
                     spinner.setSelection(0);
                      dialog.getDatePicker().setMinDate(System.currentTimeMillis()-1000);

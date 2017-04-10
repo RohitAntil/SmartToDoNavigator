@@ -12,12 +12,14 @@
         android:layout_height="wrap_content"
         android:id="@+id/name"
         android:textStyle="bold"
+        android:padding="10dp"
         />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/type"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:padding="10dp"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
@@ -28,11 +30,13 @@
             android:layout_height="wrap_content"
             android:id="@+id/from"
             android:textColor="#2222ff"
+            android:padding="10dp"
             />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/to"
-            android:textColor="#2222ff"/>
+            android:textColor="#2222ff"
+            android:padding="10dp"/>
     </LinearLayout>
 </LinearLayout>

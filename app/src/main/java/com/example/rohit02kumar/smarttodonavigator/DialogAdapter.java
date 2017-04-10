@@ -21,10 +21,10 @@ public class DialogAdapter extends ArrayAdapter<Event>  {
     List<Event> events;
     Context mContext;
 
-    public DialogAdapter(Context context, List<Event> events, Context mContext) {
+    public DialogAdapter(Context context, List<Event> events) {
         super(context, R.layout.item,events);
         this.events = events;
-        this.mContext = mContext;
+        this.mContext = context;
     }
 
     private static class ViewHolder {
@@ -65,6 +65,6 @@ public class DialogAdapter extends ArrayAdapter<Event>  {
         viewHolder.txtFrom.setText(event.getmFromDate());
         viewHolder.txtTo.setText(event.getmToDate());
 
-        return super.getView(position, convertView, parent);
+        return convertView;
     }
 }
