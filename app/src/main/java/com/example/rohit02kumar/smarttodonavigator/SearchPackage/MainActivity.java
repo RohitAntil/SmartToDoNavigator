@@ -4,17 +4,20 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnSuggestionListener;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -128,13 +131,26 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Dialog dialog = new Dialog(MainActivity.this);
-                dialog.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-                dialog.setContentView(R.layout.list);
-                dialog.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
+                final AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Select Upcoming Event")
+                        .setView(R.layout.list)
+                        .setNegativeButton("Skip Event", new DialogInterface.OnClickListener() {
+                            @Override public void onClick(DialogInterface dialog, int which) {
+                                // do the acknowledged action, beware, this is run on UI thread
+                                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                                startActivity(intent);
+                            }
+                        })// dismisses by default
+                        .setPositiveButton("Select", new DialogInterface.OnClickListener() {
+                            @Override public void onClick(DialogInterface dialog, int which) {
+                                // do the acknowledged action, beware, this is run on UI thread
+                                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                                startActivity(intent);
+                            }
+                        })
+                        .create();
+               dialog.show();
                 ListView lv = (ListView) dialog.findViewById(R.id.lv);
-                dialog.setCancelable(true);
-                dialog.show();
                 eventsList= new EventDataSource(MainActivity.this).getAllEvents();
                 lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -147,8 +163,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
                 lv.setAdapter(new DialogAdapter(MainActivity.this,eventsList));
-//                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-//                startActivity(intent);
+
             }
         });
         addEvent.setOnClickListener(new View.OnClickListener() {
