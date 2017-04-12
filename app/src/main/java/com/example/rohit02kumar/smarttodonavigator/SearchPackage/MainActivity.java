@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     List<Event> eventsList;
     final Calendar myCalendar = Calendar.getInstance();
     private static final String[] suggestions={"Bellandur","HSR","Silkboard","Whitefield"};
-    private static String[] landmarks={"School","Medical Stores and Hospitals", "Restraunts"};
+    private static String[] landmarks={"School","Hospital", "Restaurant"};
  static final int PLACE_PICKER_REQUEST=2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 updateLabel_to();
-                view.setMinDate(System.currentTimeMillis()-10000);
             }
 
         };
@@ -139,27 +138,31 @@ public class MainActivity extends AppCompatActivity {
                                 // do the acknowledged action, beware, this is run on UI thread
                                 Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
                                 startActivity(intent);
+
                             }
                         })// dismisses by default
-                        .setPositiveButton("Select", new DialogInterface.OnClickListener() {
-                            @Override public void onClick(DialogInterface dialog, int which) {
-                                // do the acknowledged action, beware, this is run on UI thread
-                                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-                                startActivity(intent);
-                            }
-                        })
+//                        .setPositiveButton("Select", new DialogInterface.OnClickListener() {
+//                            @Override public void onClick(DialogInterface dialog, int which) {
+//                                // do the acknowledged action, beware, this is run on UI thread
+//                                ListView lv = (ListView) ((AlertDialog)dialog).findViewById(R.id.lv);
+//
+//
+//                            }
+//                        })
                         .create();
-               dialog.show();
-                ListView lv = (ListView) dialog.findViewById(R.id.lv);
+                
+                dialog.show();
+               final ListView lv = (ListView) dialog.findViewById(R.id.lv);
                 eventsList= new EventDataSource(MainActivity.this).getAllEvents();
                 lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                       Event event=eventsList.get(position);
+                        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                        intent.putExtra("type",eventsList.get(position).getmEvenType());
+                        startActivity(intent);
+                        Toast.makeText(MainActivity.this,"Selected item"+position,Toast.LENGTH_LONG).show();
 
-                        Snackbar.make(view, event.getmEventName()+"\n"+event.getmEvenType()+" Date : "+event.getmFromDate(), Snackbar.LENGTH_LONG)
-                                .setAction("No action", null).show();
                     }
                 });
                 lv.setAdapter(new DialogAdapter(MainActivity.this,eventsList));
@@ -205,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void updateLabel() {
 
-        String myFormat = "MM/dd/yy"; //In which you need put here
+        String myFormat = "dd/MM/yyyy"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
         fromDate.setText(sdf.format(myCalendar.getTime()));
@@ -213,13 +216,13 @@ public class MainActivity extends AppCompatActivity {
     }
     private void updateLabel_from() {
 
-        String myFormat = "MM/dd/yy"; //In which you need put here
+        String myFormat = "dd/MM/yyyy"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         fromDate.setText(sdf.format(myCalendar.getTime()));
     }
     private void updateLabel_to() {
 
-        String myFormat = "MM/dd/yy"; //In which you need put here
+        String myFormat = "dd/MM/yyyy"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         toDate.setText(sdf.format(myCalendar.getTime()));
     }

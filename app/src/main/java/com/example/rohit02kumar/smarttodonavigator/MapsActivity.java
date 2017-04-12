@@ -72,7 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng start;
     LatLng end;
     ArrayList<LatLng> points; // to get all the LatLong Points in the direction
-
+String type=null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +81,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
-
+        type=getIntent().getExtras().getString("type");
         MarkerPoints = new ArrayList<>();
         Markers = new ArrayList<Marker>();
 
@@ -130,20 +130,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Log.d("onClick", "Button is Clicked");
                 // mMap.clear();
-                String url = getnearByUrl(start.latitude, start.longitude, Restaurant);
-                Object[] DataTransfer = new Object[2];
-                DataTransfer[0] = mMap;
-                DataTransfer[1] = url;
-                Log.d("onClick", url);
+                type=Restaurant;
+                findNearbyPlaces(type);
 
-                //  addMarkers(start,end);
-                removeMarkers();
-                GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(myActivity);
-                getNearbyPlacesData.execute(DataTransfer);
-                //move map camera
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-                Toast.makeText(MapsActivity.this, "Nearby Restaurants", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -155,21 +144,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Log.d("onClick", "Button is Clicked");
                 // mMap.clear();
-
-                String url = getnearByUrl(start.latitude, start.longitude, Hospital);
-                Object[] DataTransfer = new Object[2];
-                DataTransfer[0] = mMap;
-                DataTransfer[1] = url;
-                Log.d("onClick", url);
-
-                // addMarkers(start,end);
-                removeMarkers();
-                GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(myActivity);
-                getNearbyPlacesData.execute(DataTransfer);
-
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-                Toast.makeText(MapsActivity.this, "Nearby Hospitals", Toast.LENGTH_LONG).show();
+               type=Hospital;
+               findNearbyPlaces(type);
             }
         });
 
@@ -181,24 +157,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Log.d("onClick", "Button is Clicked");
                 // mMap.clear();
-                if (mCurrLocationMarker != null) {
-                    mCurrLocationMarker.remove();
-                }
-                String url = getnearByUrl(start.latitude, start.longitude, School);
-                Object[] DataTransfer = new Object[2];
-                DataTransfer[0] = mMap;
-                DataTransfer[1] = url;
-                Log.d("onClick", url);
-                // addMarkers(start,end);
-                removeMarkers();
-                GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(myActivity);
-                getNearbyPlacesData.execute(DataTransfer);
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-                Toast.makeText(MapsActivity.this, "Nearby Schools", Toast.LENGTH_LONG).show();
-
-                //              startNavigation();
-
+                type=School;
+                findNearbyPlaces(type);
 
             }
         });
@@ -214,6 +174,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+    void findNearbyPlaces(String type)
+    {
+        if (mCurrLocationMarker != null) {
+            mCurrLocationMarker.remove();
+        }
+        String url = getnearByUrl(start.latitude, start.longitude, type.toLowerCase());
+        Object[] DataTransfer = new Object[2];
+        DataTransfer[0] = mMap;
+        DataTransfer[1] = url;
+        Log.d("onClick", url);
+        // addMarkers(start,end);
+        removeMarkers();
+        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(MapsActivity.this);
+        getNearbyPlacesData.execute(DataTransfer);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+        Toast.makeText(MapsActivity.this, "Nearby Schools", Toast.LENGTH_LONG).show();
+
+        //              startNavigation();
+
+    }
     @Override
     public void onConnected(Bundle bundle) {
 
@@ -240,6 +221,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
         }
+        findNearbyPlaces(type);
     }
 
     @Override
@@ -575,26 +557,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    void show_nearby_schools() {
-
-        String School = "school";
-
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
-
-        String url = getnearByUrl(start.latitude, start.longitude, School);
-        Object[] DataTransfer = new Object[2];
-        DataTransfer[0] = mMap;
-        DataTransfer[1] = url;
-        Log.d("onClick", url);
-        // addMarkers(start,end);
-        removeMarkers();
-        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(this);
-        getNearbyPlacesData.execute(DataTransfer);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-        Toast.makeText(MapsActivity.this,"Nearby Schools", Toast.LENGTH_LONG).show();
-
-    }
 }

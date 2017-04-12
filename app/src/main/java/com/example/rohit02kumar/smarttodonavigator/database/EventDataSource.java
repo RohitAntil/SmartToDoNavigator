@@ -7,7 +7,10 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by rohit02.kumar on 4/7/2017.
@@ -82,7 +85,16 @@ public class EventDataSource {
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             Event event = cursorToEvent_Object(cursor);
-            events.add(event);
+            try {
+                Date toDate=new SimpleDateFormat("dd/MM/yyyy").parse(event.getmFromDate());
+                String currentDate=new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+                Date current= new SimpleDateFormat("dd/MM/yyyy").parse(currentDate);
+                if(toDate.compareTo(current)<=0)
+                    events.add(event);
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             cursor.moveToNext();
         }
         // make sure to close the cursor
