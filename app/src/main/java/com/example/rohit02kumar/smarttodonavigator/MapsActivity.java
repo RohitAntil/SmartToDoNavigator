@@ -256,7 +256,7 @@ String type=null;
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
         Toast.makeText(this,"Location changed",Toast.LENGTH_SHORT);
-      //  show_nearby_schools();
+        findNearbyPlaces(type);
     }
 
     private void addMarkers(LatLng end) {
