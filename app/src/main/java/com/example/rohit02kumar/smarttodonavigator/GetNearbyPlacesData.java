@@ -24,12 +24,14 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
     String googlePlacesData;
     GoogleMap mMap;
     String url;
+    String type;
    OnTaskCompleted task;
     ArrayList<Marker> mMarkerPoints ;
-    GetNearbyPlacesData(OnTaskCompleted task)
+    GetNearbyPlacesData(OnTaskCompleted task,String type)
     {
         this.task=task;
         mMarkerPoints=new ArrayList<Marker>();
+        this.type=type;
 
     }
     @Override
@@ -70,13 +72,18 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
             LatLng latLng = new LatLng(lat, lng);
             markerOptions.position(latLng);
             markerOptions.title(placeName + " : " + vicinity);
-            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            if(type.equalsIgnoreCase("school"))
+            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_school));
+            else if(type.equalsIgnoreCase("hospital"))
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_local_hospital));
+            else
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant));
             Marker marker=mMap.addMarker(markerOptions);
             mMarkerPoints.add(marker);
 
-//            //move map camera
-//            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//            mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+//            move map camera
+           mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
         }
 
     }

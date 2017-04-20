@@ -2,8 +2,12 @@ package com.example.rohit02kumar.smarttodonavigator;
 
 import android.Manifest;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -16,6 +20,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.View;
@@ -52,27 +57,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener ,OnTaskCompleted {
+        LocationListener ,OnTaskCompleted ,GoogleMap.OnMarkerClickListener{
 
     private GoogleMap mMap;
     ArrayList<LatLng> MarkerPoints;
     ArrayList<Marker> Markers;
     double latitude;
     double longitude;
-    private int PROXIMITY_RADIUS = 1000;
+    private int PROXIMITY_RADIUS = 500;
     GoogleApiClient mGoogleApiClient;
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
     LatLng start;
     LatLng end;
     ArrayList<LatLng> points; // to get all the LatLong Points in the direction
-String type=null;
+    String type=null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +92,7 @@ String type=null;
         Markers = new ArrayList<Marker>();
 
         //  start=new LatLng(12.972442, 77.580643);
-        end = new LatLng(12.2979100, 76.6392500);
+        end = new LatLng(12.879544, 77.645838);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -105,6 +111,7 @@ String type=null;
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setOnMarkerClickListener(this);
 
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -172,7 +179,31 @@ String type=null;
                 .build();
         mGoogleApiClient.connect();
     }
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
 
+        final AlertDialog dialog = new AlertDialog.Builder(MapsActivity.this)
+                .setTitle("Do you want to navigate to ? ")
+                .setMessage(marker.getTitle())
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface dialog, int which) {
+                        // do the acknowledged action, beware, this is run on UI thread
+                        dialog.dismiss();
+                                            }
+                })
+                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface dialog, int which) {
+                        // do the acknowledged action, beware, this is run on UI thread
+                        String url=getUrl(start,marker.getPosition());
+                        FetchUrl furl = new FetchUrl();
+                        furl.execute(url);
+                    }
+                })
+                .create();
+        dialog.show();
+
+        return true;
+    }
 
     void findNearbyPlaces(String type)
     {
@@ -186,13 +217,13 @@ String type=null;
         Log.d("onClick", url);
         // addMarkers(start,end);
         removeMarkers();
-        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(MapsActivity.this);
+        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(MapsActivity.this,type);
         getNearbyPlacesData.execute(DataTransfer);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-        Toast.makeText(MapsActivity.this, "Nearby Schools", Toast.LENGTH_LONG).show();
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+        if(type!=" ")
+        Toast.makeText(MapsActivity.this, "Fetching Nearby "+type, Toast.LENGTH_LONG).show();
 
-        //              startNavigation();
 
     }
     @Override
@@ -211,17 +242,15 @@ String type=null;
                 mGoogleApiClient);
         if (mLastLocation != null) {
             start = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-
             addMarkers(end); //setMarker
             String url = getUrl(start, end);// Getting URL to the Google Directions API
             // Start downloading json data from Google Directions API
             FetchUrl furl = new FetchUrl();
             furl.execute(url);
-            //move map camera
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+                 }
+        if(type!="") {
+            findNearbyPlaces(type);
         }
-        findNearbyPlaces(type);
     }
 
     @Override
@@ -255,8 +284,11 @@ String type=null;
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
-        Toast.makeText(this,"Location changed",Toast.LENGTH_SHORT);
-        findNearbyPlaces(type);
+//        Toast.makeText(this,"Location changed",Toast.LENGTH_SHORT);
+
+//         if(type!="")
+//         findNearbyPlaces(type);
+        Toast.makeText(this,"Location changed",Toast.LENGTH_LONG);
     }
 
     private void addMarkers(LatLng end) {
@@ -531,6 +563,25 @@ String type=null;
 
                     double lat = Double.parseDouble(point.get("lat"));
                     double lng = Double.parseDouble(point.get("lng"));
+//
+//                    Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+//                        List<Address> addresses = null;
+//                        try {
+//                            addresses = geocoder.getFromLocation(lat, lng, 1);
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        Address obj = addresses.get(0);
+//                        String add = obj.getAddressLine(0);
+//                        add = add + "\n" + obj.getCountryName();
+//                        add = add + "\n" + obj.getCountryCode();
+//                        add = add + "\n" + obj.getAdminArea();
+//                        add = add + "\n" + obj.getPostalCode();
+//                        add = add + "\n" + obj.getSubAdminArea();
+//                        add = add + "\n" + obj.getLocality();
+//                        add = add + "\n" + obj.getSubThoroughfare();
+//                    obj.getPremises();
+
                     LatLng position = new LatLng(lat, lng);
 
                     points.add(position);
@@ -550,6 +601,9 @@ String type=null;
             if (lineOptions != null) {
 
                 mMap.addPolyline(lineOptions);
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+
             } else {
                 Log.d("onPostExecute", "without Polylines drawn");
             }

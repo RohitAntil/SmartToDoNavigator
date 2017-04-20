@@ -137,7 +137,9 @@ public class MainActivity extends AppCompatActivity {
                             @Override public void onClick(DialogInterface dialog, int which) {
                                 // do the acknowledged action, beware, this is run on UI thread
                                 Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                                intent.putExtra("type","");
                                 startActivity(intent);
+
 
                             }
                         })// dismisses by default
@@ -169,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
         addEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -178,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this,"Enter valid event Name",Toast.LENGTH_SHORT).show();
                     return ;
                 }
-                 String type=spinner.getSelectedItem().toString();
+                String type=spinner.getSelectedItem().toString();
                 String from=fromDate.getText().toString();
                 String to=toDate.getText().toString();
                 try {
