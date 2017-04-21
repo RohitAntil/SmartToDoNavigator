@@ -4,6 +4,7 @@ package com.example.rohit02kumar.smarttodonavigator;
  * Created by rohit02.kumar on 3/9/2017.
  */
 import android.app.Activity;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -25,14 +26,15 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
     GoogleMap mMap;
     String url;
     String type;
+    LatLng start;
    OnTaskCompleted task;
     ArrayList<Marker> mMarkerPoints ;
-    GetNearbyPlacesData(OnTaskCompleted task,String type)
+    GetNearbyPlacesData(OnTaskCompleted task,String type,LatLng start)
     {
         this.task=task;
         mMarkerPoints=new ArrayList<Marker>();
         this.type=type;
-
+        this.start=start;
     }
     @Override
     protected String doInBackground(Object... params) {
@@ -71,14 +73,28 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
             String vicinity = googlePlace.get("vicinity");
             LatLng latLng = new LatLng(lat, lng);
             markerOptions.position(latLng);
-            markerOptions.title(placeName + " : " + vicinity);
+            markerOptions.title(placeName);
+
+            Location location1 = new Location("");
+            location1.setLatitude(start.latitude);
+            location1.setLongitude(start.longitude);
+
+            Location location2 = new Location("");
+            location2.setLatitude(lat);
+            location2.setLongitude(lng);
+
+            float distanceInMeters = location1.distanceTo(location2);
+            markerOptions.snippet("Distance : "+ distanceInMeters+"m");
+
             if(type.equalsIgnoreCase("school"))
             markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_school));
             else if(type.equalsIgnoreCase("hospital"))
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_local_hospital));
             else
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant));
+
             Marker marker=mMap.addMarker(markerOptions);
+            marker.showInfoWindow();
             mMarkerPoints.add(marker);
 
 //            move map camera

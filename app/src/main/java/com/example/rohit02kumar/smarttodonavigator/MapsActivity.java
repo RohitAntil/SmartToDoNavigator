@@ -79,6 +79,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng end;
     ArrayList<LatLng> points; // to get all the LatLong Points in the direction
     String type=null;
+    boolean initialRequest=true;
+    Location mLastLocation=null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -202,14 +204,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .create();
         dialog.show();
 
-        return true;
+        return false;
     }
 
     void findNearbyPlaces(String type)
     {
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
+//        if (mCurrLocationMarker != null) {
+//            mCurrLocationMarker.remove();
+//        }
         String url = getnearByUrl(start.latitude, start.longitude, type.toLowerCase());
         Object[] DataTransfer = new Object[2];
         DataTransfer[0] = mMap;
@@ -217,10 +219,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d("onClick", url);
         // addMarkers(start,end);
         removeMarkers();
-        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(MapsActivity.this,type);
+        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(MapsActivity.this,type,start);
         getNearbyPlacesData.execute(DataTransfer);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+       mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
+       mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+
         if(type!=" ")
         Toast.makeText(MapsActivity.this, "Fetching Nearby "+type, Toast.LENGTH_LONG).show();
 
@@ -230,8 +233,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onConnected(Bundle bundle) {
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setInterval(60*1000);
+        mLocationRequest.setFastestInterval(60*1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -251,6 +254,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(type!="") {
             findNearbyPlaces(type);
         }
+
     }
 
     @Override
@@ -261,34 +265,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
 
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
+//        if (mCurrLocationMarker != null) {
+//            mCurrLocationMarker.remove();
+//        }
 
         latitude = location.getLatitude();
         longitude = location.getLongitude();
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         start = latLng;
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);
 
-        //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-
-        //stop location updates
-        if (mGoogleApiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        }
+//        //stop location updates
+//        if (mGoogleApiClient != null) {
+//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+//        }
 //        Toast.makeText(this,"Location changed",Toast.LENGTH_SHORT);
+        if(mLastLocation!=null) {
+            float[] distance = new float[1];
+            Location.distanceBetween(mLastLocation.getLatitude(), mLastLocation.getLongitude(),latitude, longitude, distance);
+            // distance[0] is now the distance between these lat/lons in meters
+            if (distance[0] < 2.0) {
+                // your code...
+                if (type != "" && !initialRequest)
+                    findNearbyPlaces(type);
+                Toast.makeText(this,"Location changed",Toast.LENGTH_LONG);
+            }else
+            {
+                Toast.makeText(this,"Same location",Toast.LENGTH_LONG);            }
+        }
+        mLastLocation=location;
+        initialRequest=false;
 
-//         if(type!="")
-//         findNearbyPlaces(type);
-        Toast.makeText(this,"Location changed",Toast.LENGTH_LONG);
     }
 
     private void addMarkers(LatLng end) {
@@ -371,22 +378,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    void startNavigation() {
-        MarkerOptions optionsStart = new MarkerOptions();
-        optionsStart.position(points.get(0));
-        optionsStart.icon(BitmapDescriptorFactory.fromResource(R.drawable.nav_icon));
-        Marker m = mMap.addMarker(optionsStart);
-        for (final LatLng point : points) {
-            m.remove();
-
-            optionsStart = new MarkerOptions();
-            optionsStart.position(point);
-            optionsStart.icon(BitmapDescriptorFactory.fromResource(R.drawable.nav_icon));
-            mMap.addMarker(optionsStart);
-
-        }
-    }
-
     @Override
     public void onTaskCompleted(ArrayList<Marker> list) {
         Markers = list;
@@ -401,7 +392,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
-
 
     private String getnearByUrl(double latitude, double longitude, String nearbyPlace) {
 
@@ -607,7 +597,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } else {
                 Log.d("onPostExecute", "without Polylines drawn");
             }
-
         }
     }
 
