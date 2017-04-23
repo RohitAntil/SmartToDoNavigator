@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="100dp"
+    android:layout_height="100dp"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    >
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <ImageView
+        android:src="@drawable/ic_school"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:id="@+id/marker_icon"
+        android:paddingRight="2dp"/>
+    <TextView
+        android:text="test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/marker_name"
+        android:textColor="#1188ff"/>
+    </LinearLayout>
+    <TextView
+        android:text="test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/marker_dis"
+        android:textColor="#771111"/>
+</LinearLayout>

@@ -4,9 +4,14 @@ package com.example.rohit02kumar.smarttodonavigator;
  * Created by rohit02.kumar on 3/9/2017.
  */
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,10 +32,11 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
     String url;
     String type;
     LatLng start;
+    Context context;
    OnTaskCompleted task;
     ArrayList<Marker> mMarkerPoints ;
-    GetNearbyPlacesData(OnTaskCompleted task,String type,LatLng start)
-    {
+    GetNearbyPlacesData(Context context , OnTaskCompleted task, String type, LatLng start)
+    {   this.context=context;
         this.task=task;
         mMarkerPoints=new ArrayList<Marker>();
         this.type=type;
@@ -84,19 +90,19 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
             location2.setLongitude(lng);
 
             float distanceInMeters = location1.distanceTo(location2);
-            markerOptions.snippet("Distance : "+ distanceInMeters+"m");
+            markerOptions.snippet("Dist : "+ (int)distanceInMeters+"m");
 
-            if(type.equalsIgnoreCase("school"))
-            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_school));
-            else if(type.equalsIgnoreCase("hospital"))
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_local_hospital));
-            else
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant));
+//            if(type.equalsIgnoreCase("school"))
+//            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_school));
+//            else if(type.equalsIgnoreCase("hospital"))
+//                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_local_hospital));
+//            else
+//                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant));
 
             Marker marker=mMap.addMarker(markerOptions);
-            marker.showInfoWindow();
-            mMarkerPoints.add(marker);
 
+            mMarkerPoints.add(marker);
+            marker.showInfoWindow();
 //            move map camera
            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15));

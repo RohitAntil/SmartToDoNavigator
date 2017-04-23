@@ -5,6 +5,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -25,7 +26,10 @@ import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -64,7 +68,7 @@ import java.util.TimerTask;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener ,OnTaskCompleted ,GoogleMap.OnMarkerClickListener{
+        LocationListener ,OnTaskCompleted ,GoogleMap.OnMarkerClickListener,GoogleMap.InfoWindowAdapter{
 
     private GoogleMap mMap;
     ArrayList<LatLng> MarkerPoints;
@@ -114,7 +118,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMarkerClickListener(this);
-
+        mMap.setInfoWindowAdapter(this);
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
@@ -181,31 +185,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
         mGoogleApiClient.connect();
     }
-    @Override
-    public boolean onMarkerClick(final Marker marker) {
-
-        final AlertDialog dialog = new AlertDialog.Builder(MapsActivity.this)
-                .setTitle("Do you want to navigate to ? ")
-                .setMessage(marker.getTitle())
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface dialog, int which) {
-                        // do the acknowledged action, beware, this is run on UI thread
-                        dialog.dismiss();
-                                            }
-                })
-                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface dialog, int which) {
-                        // do the acknowledged action, beware, this is run on UI thread
-                        String url=getUrl(start,marker.getPosition());
-                        FetchUrl furl = new FetchUrl();
-                        furl.execute(url);
-                    }
-                })
-                .create();
-        dialog.show();
-
-        return false;
-    }
 
     void findNearbyPlaces(String type)
     {
@@ -219,13 +198,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d("onClick", url);
         // addMarkers(start,end);
         removeMarkers();
-        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(MapsActivity.this,type,start);
+        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData(this.getApplicationContext(),MapsActivity.this,type,start);
         getNearbyPlacesData.execute(DataTransfer);
        mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
 
-        if(type!=" ")
-        Toast.makeText(MapsActivity.this, "Fetching Nearby "+type, Toast.LENGTH_LONG).show();
+        //if(type!="")
+      //  Toast.makeText(MapsActivity.this, "Fetching Nearby "+type, Toast.LENGTH_LONG).show();
 
 
     }
@@ -280,18 +259,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
 //        }
 //        Toast.makeText(this,"Location changed",Toast.LENGTH_SHORT);
-        if(mLastLocation!=null) {
-            float[] distance = new float[1];
-            Location.distanceBetween(mLastLocation.getLatitude(), mLastLocation.getLongitude(),latitude, longitude, distance);
+//        if(mLastLocation!=null) {
+//            float[] distance = new float[1]
+//       Location.distanceBetween(mLastLocation.getLatitude(), mLastLocation.getLongitude(),latitude, longitude, distance);
             // distance[0] is now the distance between these lat/lons in meters
-            if (distance[0] < 2.0) {
-                // your code...
-                if (type != "" && !initialRequest)
-                    findNearbyPlaces(type);
-                Toast.makeText(this,"Location changed",Toast.LENGTH_LONG);
-            }else
-            {
-                Toast.makeText(this,"Same location",Toast.LENGTH_LONG);            }
+//            if (distance[0]>5.0) {
+//                // your code...
+//                if (type != "" && !initialRequest)
+//                    findNearbyPlaces(type);
+//                Toast.makeText(this,"Location changed",Toast.LENGTH_LONG);
+//            }else
+//            {
+//                Toast.makeText(this,"Same location",Toast.LENGTH_LONG);            }
+//        }
+        if (type != "" && !initialRequest) {
+            findNearbyPlaces(type);
+            Toast.makeText(this, "Location changed", Toast.LENGTH_LONG);
         }
         mLastLocation=location;
         initialRequest=false;
@@ -381,6 +364,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onTaskCompleted(ArrayList<Marker> list) {
         Markers = list;
+        LinearLayout tv = (LinearLayout) this.getLayoutInflater().inflate(R.layout.markericon, null, false);
+
+        TextView name=(TextView)tv.findViewById(R.id.marker_name);
+        TextView dis=(TextView)tv.findViewById(R.id.marker_dis);
+        ImageView icon=(ImageView)tv.findViewById(R.id.marker_icon);
+
+        if(type.equalsIgnoreCase("school"))
+            icon.setImageResource(R.drawable.ic_school);
+        else if(type.equalsIgnoreCase("hospital"))
+            icon.setImageResource(R.drawable.ic_local_hospital);
+        else
+            icon.setImageResource(R.drawable.ic_restaurant);
+
+        for(Marker marker: Markers)
+        {  if(marker.getTitle().length()>=12)
+            name.setText(marker.getTitle().substring(0,12));
+            dis.setText(marker.getSnippet());
+            tv.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            tv.layout(0, 0, tv.getMeasuredWidth(), tv.getMeasuredHeight());
+
+            tv.setDrawingCacheEnabled(true);
+            tv.buildDrawingCache();
+            Bitmap bm = tv.getDrawingCache();
+            marker.setIcon(BitmapDescriptorFactory.fromBitmap(bm));
+        }
+
     }
 
     public void removeMarkers() {
@@ -391,6 +401,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+
+        final AlertDialog dialog = new AlertDialog.Builder(MapsActivity.this)
+                .setTitle("Do you want to navigate to ? ")
+                .setMessage(marker.getTitle())
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface dialog, int which) {
+                        // do the acknowledged action, beware, this is run on UI thread
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface dialog, int which) {
+                        // do the acknowledged action, beware, this is run on UI thread
+                        String url=getUrl(start,marker.getPosition());
+                        mMap.clear();
+                        FetchUrl furl = new FetchUrl();
+                        furl.execute(url);
+                        addMarkers(marker.getPosition());
+                        url=getUrl(marker.getPosition(),end);
+                        FetchUrl furl1 = new FetchUrl();
+                        furl1.execute(url);
+                    }
+                })
+                .create();
+        dialog.show();
+
+        return true;
+    }
+
+    @Override
+    public View getInfoWindow(Marker marker) {
+        return null;
+        //return prepareInfoView(marker);
+    }
+
+    @Override
+    public View getInfoContents(Marker marker) {
+        //return null;
+        View v = getLayoutInflater().inflate(R.layout.windowlayout, null);
+
+        // Getting the position from the marker
+        LatLng latLng = marker.getPosition();
+
+        ImageView img=(ImageView)v.findViewById(R.id.window_icon) ;
+        // Getting reference to the TextView to set latitude
+        TextView tvLat = (TextView) v.findViewById(R.id.tv_title);
+
+        // Getting reference to the TextView to set longitude
+        TextView tvLng = (TextView) v.findViewById(R.id.tv_distance);
+        img.setImageResource(R.drawable.ic_school);
+        // Setting the latitude
+        tvLat.setText(marker.getTitle());
+
+        // Setting the longitude
+        tvLng.setText(marker.getSnippet());
+
+        // Returning the view containing InfoWindow contents
+        return v;
+
     }
 
     private String getnearByUrl(double latitude, double longitude, String nearbyPlace) {
