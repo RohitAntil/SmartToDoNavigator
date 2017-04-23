@@ -423,9 +423,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         FetchUrl furl = new FetchUrl();
                         furl.execute(url);
                         addMarkers(marker.getPosition());
-                        String url1=getUrl(marker.getPosition(),end);
+                        String url2=getUrl(marker.getPosition(),end);
                         FetchUrl furl1 = new FetchUrl();
-                        furl1.execute(url1);
+                        furl1.execute(url2);
                     }
                 })
                 .create();
