@@ -7,28 +7,19 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,11 +33,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONObject;
@@ -61,9 +50,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -82,9 +68,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng start;
     LatLng end;
     ArrayList<LatLng> points; // to get all the LatLong Points in the direction
-    String type=null;
+    String type="";
     boolean initialRequest=true;
     Location mLastLocation=null;
+    Marker stop;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -203,8 +190,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
        mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
 
-        //if(type!="")
-      //  Toast.makeText(MapsActivity.this, "Fetching Nearby "+type, Toast.LENGTH_LONG).show();
+        if(type!="")
+        Toast.makeText(MapsActivity.this, "Fetching Nearby "+type, Toast.LENGTH_LONG).show();
 
 
     }
@@ -212,8 +199,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onConnected(Bundle bundle) {
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(60*1000);
-        mLocationRequest.setFastestInterval(60*1000);
+     //   mLocationRequest.setInterval(60*1000);
+        mLocationRequest.setSmallestDisplacement(50);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -226,8 +213,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             start = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             addMarkers(end); //setMarker
             String url = getUrl(start, end);// Getting URL to the Google Directions API
+
             // Start downloading json data from Google Directions API
-            FetchUrl furl = new FetchUrl();
+            FetchUrl furl = new FetchUrl(Color.BLUE);
             furl.execute(url);
                  }
         if(type!="") {
@@ -244,34 +232,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
 
-//        if (mCurrLocationMarker != null) {
-//            mCurrLocationMarker.remove();
-//        }
 
+        Log.d("Update","Location changed");
         latitude = location.getLatitude();
         longitude = location.getLongitude();
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         start = latLng;
 
-//        //stop location updates
-//        if (mGoogleApiClient != null) {
-//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-//        }
-//        Toast.makeText(this,"Location changed",Toast.LENGTH_SHORT);
-//        if(mLastLocation!=null) {
-//            float[] distance = new float[1]
-//       Location.distanceBetween(mLastLocation.getLatitude(), mLastLocation.getLongitude(),latitude, longitude, distance);
-            // distance[0] is now the distance between these lat/lons in meters
-//            if (distance[0]>5.0) {
-//                // your code...
-//                if (type != "" && !initialRequest)
-//                    findNearbyPlaces(type);
-//                Toast.makeText(this,"Location changed",Toast.LENGTH_LONG);
-//            }else
-//            {
-//                Toast.makeText(this,"Same location",Toast.LENGTH_LONG);            }
-//        }
         if (type != "" && !initialRequest) {
             findNearbyPlaces(type);
             Toast.makeText(this, "Location changed", Toast.LENGTH_LONG);
@@ -291,6 +259,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
+//stop location updates
+        if (mGoogleApiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
 
     }
 
@@ -405,9 +377,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
-
+        stop=marker;
         final AlertDialog dialog = new AlertDialog.Builder(MapsActivity.this)
-                .setTitle("Do you want to navigate to ? ")
+                .setTitle("Do you want to add this to path ? ")
                 .setMessage(marker.getTitle())
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface dialog, int which) {
@@ -420,11 +392,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         // do the acknowledged action, beware, this is run on UI thread
                         String url=getUrl(start,marker.getPosition());
                         mMap.clear();
-                        FetchUrl furl = new FetchUrl();
+                        FetchUrl furl = new FetchUrl(Color.GREEN);
                         furl.execute(url);
+
                         addMarkers(marker.getPosition());
                         String url2=getUrl(marker.getPosition(),end);
-                        FetchUrl furl1 = new FetchUrl();
+                        FetchUrl furl1 = new FetchUrl(Color.BLUE);
                         furl1.execute(url2);
                     }
                 })
@@ -473,7 +446,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         googlePlacesUrl.append("&radius=" + PROXIMITY_RADIUS);
         googlePlacesUrl.append("&type=" + nearbyPlace);
         googlePlacesUrl.append("&sensor=true");
-        googlePlacesUrl.append("&key=" + "AIzaSyATuUiZUkEc_UgHuqsBJa1oqaODI-3mLs0");
+        googlePlacesUrl.append("&key=" + "AIzaSyCZjjI3y1iu-TqGf8ywNYO0CrdwzcUQ1uQ");
         Log.d("getUrl", googlePlacesUrl.toString());
         return (googlePlacesUrl.toString());
     }
@@ -547,7 +520,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     // Fetches data from url passed
     private class FetchUrl extends AsyncTask<String, Void, String> {
-
+        int color;
+       FetchUrl(int color)
+       {
+           this.color=color;
+       }
         @Override
         protected String doInBackground(String... url) {
 
@@ -568,7 +545,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            ParserTask parserTask = new ParserTask();
+            ParserTask parserTask = new ParserTask(color);
 
             // Invokes the thread for parsing the JSON data
             parserTask.execute(result);
@@ -583,7 +560,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Parsing the data in non-ui thread
         List<List<HashMap<String, String>>> routes = null;
-
+   int color;
+        ParserTask(int color){
+            this.color=color;
+        }
         @Override
         protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
 
@@ -626,38 +606,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     double lat = Double.parseDouble(point.get("lat"));
                     double lng = Double.parseDouble(point.get("lng"));
-//
-//                    Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
-//                        List<Address> addresses = null;
-//                        try {
-//                            addresses = geocoder.getFromLocation(lat, lng, 1);
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                        Address obj = addresses.get(0);
-//                        String add = obj.getAddressLine(0);
-//                        add = add + "\n" + obj.getCountryName();
-//                        add = add + "\n" + obj.getCountryCode();
-//                        add = add + "\n" + obj.getAdminArea();
-//                        add = add + "\n" + obj.getPostalCode();
-//                        add = add + "\n" + obj.getSubAdminArea();
-//                        add = add + "\n" + obj.getLocality();
-//                        add = add + "\n" + obj.getSubThoroughfare();
-//                    obj.getPremises();
-
                     LatLng position = new LatLng(lat, lng);
-
                     points.add(position);
                 }
 
                 // Adding all the points in the route to LineOptions
                 lineOptions.addAll(points);
                 lineOptions.width(15);
-                lineOptions.color(Color.BLUE);
+                lineOptions.color(color);
 
 
                 Log.d("onPostExecute", "onPostExecute lineoptions decoded");
-
             }
 
             // Drawing polyline in the Google Map for the i-th route

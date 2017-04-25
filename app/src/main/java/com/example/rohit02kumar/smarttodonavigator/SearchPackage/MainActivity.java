@@ -23,6 +23,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     Button addEvent;
     DatePickerDialog dialog;
     DatePickerDialog dialog1;
+    ImageView from_img;
+    ImageView to_img;
     List<Event> eventsList;
     final Calendar myCalendar = Calendar.getInstance();
     private static final String[] suggestions={"Bellandur","HSR","Silkboard","Whitefield"};
@@ -70,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         fromDate = (TextView) findViewById(R.id.from_date_text);
         toDate = (TextView) findViewById(R.id.to_date_text);
         addEvent = (Button) findViewById(R.id.add_event);
+        from_img=(ImageView) findViewById(R.id.img_from);
+        to_img=(ImageView) findViewById(R.id.img_to);
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, landmarks); //selected item will look like a spinner set from XML
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerArrayAdapter);
@@ -105,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                 myCalendar.get(Calendar.DAY_OF_MONTH));
         dialog.getDatePicker().setMinDate(System.currentTimeMillis()-1000);
-        fromDate.setOnClickListener(new View.OnClickListener() {
+        from_img.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -118,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                 .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                 myCalendar.get(Calendar.DAY_OF_MONTH));
         dialog1.getDatePicker().setMinDate(System.currentTimeMillis()-1000);
-        toDate.setOnClickListener(new View.OnClickListener() {
+        to_img.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -142,15 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                             }
-                        })// dismisses by default
-//                        .setPositiveButton("Select", new DialogInterface.OnClickListener() {
-//                            @Override public void onClick(DialogInterface dialog, int which) {
-//                                // do the acknowledged action, beware, this is run on UI thread
-//                                ListView lv = (ListView) ((AlertDialog)dialog).findViewById(R.id.lv);
-//
-//
-//                            }
-//                        })
+                        })
                         .create();
                 
                 dialog.show();
@@ -229,38 +226,5 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         toDate.setText(sdf.format(myCalendar.getTime()));
     }
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode == PLACE_PICKER_REQUEST) {
-//            if (resultCode == RESULT_OK) {
-//                Place selectedPlace = PlacePicker.getPlace(data, this);
-//                // Do something with the place
-//            }
-//        }
-//    }
-//            search.setOnSuggestionListener(new OnSuggestionListener(){
-//
-//            @Override
-//            public boolean onSuggestionSelect(int position) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onSuggestionClick(int position) {
-//                return false;
-//            }
-//        });
-//
-//        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                populateAdapter(newText);
-//                return false;
-//            }
-//        });
 
 }

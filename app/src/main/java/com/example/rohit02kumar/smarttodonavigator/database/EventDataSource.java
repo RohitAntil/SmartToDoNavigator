@@ -86,10 +86,10 @@ public class EventDataSource {
         while (!cursor.isAfterLast()) {
             Event event = cursorToEvent_Object(cursor);
             try {
-                Date toDate=new SimpleDateFormat("dd/MM/yyyy").parse(event.getmFromDate());
+                //Date toDate=new SimpleDateFormat("dd/MM/yyyy").parse(event.getmFromDate());
                 String currentDate=new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                 Date current= new SimpleDateFormat("dd/MM/yyyy").parse(currentDate);
-                if(toDate.compareTo(current)<=0)
+                //if(toDate.compareTo(current)<=0)
                     events.add(event);
 
             } catch (ParseException e) {

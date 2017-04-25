@@ -33,6 +33,7 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
     String type;
     LatLng start;
     Context context;
+
    OnTaskCompleted task;
     ArrayList<Marker> mMarkerPoints ;
     GetNearbyPlacesData(Context context , OnTaskCompleted task, String type, LatLng start)
@@ -69,8 +70,8 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
     }
 
     private void ShowNearbyPlaces(List<HashMap<String, String>> nearbyPlacesList) {
+        Log.d("onPostExecute","Entered into showing locations");
         for (int i = 0; i < nearbyPlacesList.size(); i++) {
-            Log.d("onPostExecute","Entered into showing locations");
             MarkerOptions markerOptions = new MarkerOptions();
             HashMap<String, String> googlePlace = nearbyPlacesList.get(i);
             double lat = Double.parseDouble(googlePlace.get("lat"));
@@ -92,17 +93,11 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
             float distanceInMeters = location1.distanceTo(location2);
             markerOptions.snippet("Dist : "+ (int)distanceInMeters+"m");
 
-//            if(type.equalsIgnoreCase("school"))
-//            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_school));
-//            else if(type.equalsIgnoreCase("hospital"))
-//                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_local_hospital));
-//            else
-//                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant));
-
             Marker marker=mMap.addMarker(markerOptions);
 
             mMarkerPoints.add(marker);
             marker.showInfoWindow();
+
 //            move map camera
            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
