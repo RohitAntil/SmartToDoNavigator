@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
     List<Event> eventsList;
     final Calendar myCalendar = Calendar.getInstance();
     private static final String[] suggestions={"Bellandur","HSR","Silkboard","Whitefield"};
-    private static String[] landmarks={"School","Hospital", "Restaurant"};
- static final int PLACE_PICKER_REQUEST=2;
+    private static String[] landmarks={"ATM","Hospital", "Restaurant","School","Shopping_Mall"};
+    static final int PLACE_PICKER_REQUEST=2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

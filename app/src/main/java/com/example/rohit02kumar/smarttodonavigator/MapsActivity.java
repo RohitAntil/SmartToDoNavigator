@@ -101,6 +101,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -342,7 +343,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         TextView dis=(TextView)tv.findViewById(R.id.marker_dis);
         ImageView icon=(ImageView)tv.findViewById(R.id.marker_icon);
 
-        if(type.equalsIgnoreCase("school"))
+        if(type.equalsIgnoreCase("school")||type.equalsIgnoreCase("atm"))
             icon.setImageResource(R.drawable.ic_school);
         else if(type.equalsIgnoreCase("hospital"))
             icon.setImageResource(R.drawable.ic_local_hospital);
@@ -446,7 +447,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         googlePlacesUrl.append("&radius=" + PROXIMITY_RADIUS);
         googlePlacesUrl.append("&type=" + nearbyPlace);
         googlePlacesUrl.append("&sensor=true");
-        googlePlacesUrl.append("&key=" + "AIzaSyCZjjI3y1iu-TqGf8ywNYO0CrdwzcUQ1uQ");
+        googlePlacesUrl.append("&key=" + "AIzaSyD3n47SNAlfphIONs4a8xdA-v0VccaxxIY");
         Log.d("getUrl", googlePlacesUrl.toString());
         return (googlePlacesUrl.toString());
     }
