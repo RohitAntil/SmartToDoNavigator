@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.clans.fab.FloatingActionButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -72,6 +73,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     boolean initialRequest=true;
     Location mLastLocation=null;
     Marker stop;
+    FloatingActionButton rest_fab;
+    FloatingActionButton atm_fab;
+    FloatingActionButton hospital_fab;
+    FloatingActionButton petrol_fab;
+    FloatingActionButton school_fab;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,12 +125,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
-
+       school_fab=(FloatingActionButton)findViewById(R.id.menu_school);
+        atm_fab=(FloatingActionButton)findViewById(R.id.menu_atm);
+        hospital_fab=(FloatingActionButton)findViewById(R.id.menu_hospital);
+        petrol_fab=(FloatingActionButton)findViewById(R.id.menu_petrol);
+        rest_fab=(FloatingActionButton)findViewById(R.id.menu_restaurant);
 
         final MapsActivity myActivity = this;
+        school_fab.setOnClickListener(new View.OnClickListener()
+          {  String school = "school";
+             @Override
+             public void onClick(View v) {
 
-        Button btnRestaurant = (Button) findViewById(R.id.btnRestaurant);
-        btnRestaurant.setOnClickListener(new View.OnClickListener() {
+               Log.d("onClick", "Button is Clicked");
+             type=school;
+             findNearbyPlaces(type);
+          }
+       });
+
+        rest_fab.setOnClickListener(new View.OnClickListener() {
             String Restaurant = "restaurant";
 
             @Override
@@ -137,8 +156,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        Button btnHospital = (Button) findViewById(R.id.btnHospital);
-        btnHospital.setOnClickListener(new View.OnClickListener() {
+        hospital_fab.setOnClickListener(new View.OnClickListener() {
             String Hospital = "hospital";
 
             @Override
@@ -150,15 +168,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        Button btnSchool = (Button) findViewById(R.id.btnSchool);
-        btnSchool.setOnClickListener(new View.OnClickListener() {
-            String School = "school";
+        atm_fab.setOnClickListener(new View.OnClickListener() {
+            String atm = "atm";
 
             @Override
             public void onClick(View v) {
                 Log.d("onClick", "Button is Clicked");
                 // mMap.clear();
-                type=School;
+                type=atm;
+                findNearbyPlaces(type);
+
+            }
+        });
+
+        petrol_fab.setOnClickListener(new View.OnClickListener() {
+            String station = "gas_station";
+
+            @Override
+            public void onClick(View v) {
+                Log.d("onClick", "Button is Clicked");
+                // mMap.clear();
+                type=station;
                 findNearbyPlaces(type);
 
             }
@@ -343,10 +373,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         TextView dis=(TextView)tv.findViewById(R.id.marker_dis);
         ImageView icon=(ImageView)tv.findViewById(R.id.marker_icon);
 
-        if(type.equalsIgnoreCase("school")||type.equalsIgnoreCase("atm"))
+        if(type.equalsIgnoreCase("school"))
             icon.setImageResource(R.drawable.ic_school);
         else if(type.equalsIgnoreCase("hospital"))
             icon.setImageResource(R.drawable.ic_local_hospital);
+        else if(type.equalsIgnoreCase("atm"))
+            icon.setImageResource(R.drawable.ic_local_atm);
+        else if(type.equalsIgnoreCase("gas_station"))
+            icon.setImageResource(R.drawable.ic_ev_station);
         else
             icon.setImageResource(R.drawable.ic_restaurant);
 

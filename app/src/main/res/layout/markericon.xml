@@ -10,17 +10,18 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
     <ImageView
-        android:src="@drawable/ic_school"
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:id="@+id/marker_icon"
-        android:paddingRight="2dp"/>
+        android:paddingRight="2dp"
+        android:background="#ff1666"/>
     <TextView
         android:text="test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/marker_name"
-        android:textColor="#1188ff"/>
+        android:textColor="#1188ff"
+        android:textAlignment="center"/>
     </LinearLayout>
     <TextView
         android:text="test"
